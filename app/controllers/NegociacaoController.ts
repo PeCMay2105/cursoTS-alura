@@ -1,0 +1,52 @@
+import { Negociacoes } from "../models/Negociacoes.js";
+import { Negociacao } from "../models/negociacao.js";
+import { negociacoesView } from "../views/negociacoes-view.js";
+
+export class NegociacaoController {
+    private inputData:HTMLInputElement;
+    private inputValor:HTMLInputElement;
+    private inputQuantidade:HTMLInputElement;
+    private negociacoes = new Negociacoes();
+    public negociacoesView = new negociacoesView("#negociacoesView")
+
+    
+
+    constructor(){
+        let $ = document.getElementById.bind(document);
+        this.inputData = $("data")
+        this.inputValor = $("valor")
+        this.inputQuantidade = $("quantidade")
+        this.negociacoesView.update(this.negociacoes);
+
+    }
+
+    adiciona():void{
+
+        const novaNegociacao = this.criaNegociacao();
+        const listaNegociacoes = this.negociacoes;
+        console.log(listaNegociacoes.listaNegociacoes())
+        this.negociacoesView.update(this.negociacoes)
+        //console.log(novaNegociacao);
+        this.limpaForm();
+
+    }
+
+    criaNegociacao():Negociacao{
+        const regEx = /-/g
+        let valor = parseFloat(this.inputValor.value);
+        let quantidade = parseInt(this.inputQuantidade.value);
+        let data = new Date(this.inputData.value.replace(regEx,","))
+
+        this.negociacoes.adiciona(new Negociacao(data,quantidade,valor));
+
+        return new Negociacao(data,quantidade,valor);
+        
+    }
+
+    limpaForm():void{
+        this.inputData.value = ""
+        this.inputValor.value = ""
+        this.inputQuantidade.focus
+    }
+
+}
