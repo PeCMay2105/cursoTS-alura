@@ -10,4 +10,11 @@ export class Negociacao {
     get data() {
         return new Date(this._data.getTime());
     }
+    static criaEConverte(dataString, quantidadeString, valorString) {
+        const regEx = /-/g;
+        let valor = parseFloat(valorString);
+        let quantidade = parseInt(quantidadeString);
+        let data = new Date(dataString.replace(regEx, ","));
+        return new Negociacao(data, quantidade, valor);
+    }
 }

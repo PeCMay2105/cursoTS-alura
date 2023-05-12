@@ -1,5 +1,7 @@
+import { DiasDaSemana } from "../enums/diasDaSemana.js";
 import { Negociacoes } from "../models/Negociacoes.js";
 import { Negociacao } from "../models/negociacao.js";
+import { mensagemView } from "../views/mensagem-view.js";
 import { negociacoesView } from "../views/negociacoes-view.js";
 
 export class NegociacaoController {
@@ -7,7 +9,9 @@ export class NegociacaoController {
     private inputValor:HTMLInputElement;
     private inputQuantidade:HTMLInputElement;
     private negociacoes = new Negociacoes();
-    public negociacoesView = new negociacoesView("#negociacoesView")
+    public negociacoesView = new negociacoesView("#negociacoesView",true)
+    private mensagem = new mensagemView("#mensagemView")
+
 
     
 
@@ -17,36 +21,51 @@ export class NegociacaoController {
         this.inputValor = $("valor")
         this.inputQuantidade = $("quantidade")
         this.negociacoesView.update(this.negociacoes);
+        
 
     }
 
-    adiciona():void{
+    public adiciona():void{
 
         const novaNegociacao = this.criaNegociacao();
         const listaNegociacoes = this.negociacoes;
-        console.log(listaNegociacoes.listaNegociacoes())
-        this.negociacoesView.update(this.negociacoes)
-        //console.log(novaNegociacao);
-        this.limpaForm();
+
+        if(!this.ehdiaUtil(novaNegociacao.data)){
+            this.mensagem.update("É necessário selecionar uma data correspondente a um dia útil")
+            return
+        }
+        this.atualizaView();
+        this.limpaForm()
+        
+
 
     }
 
-    criaNegociacao():Negociacao{
-        const regEx = /-/g
-        let valor = parseFloat(this.inputValor.value);
-        let quantidade = parseInt(this.inputQuantidade.value);
-        let data = new Date(this.inputData.value.replace(regEx,","))
+    private criaNegociacao():Negociacao{
+        const negociacaoAdicionada = Negociacao.criaEConverte(this.inputData.value,
+            this.inputQuantidade.value,
+            this.inputValor.value)
+        if(this.ehdiaUtil(negociacaoAdicionada.data)){
+            this.negociacoes.adiciona(negociacaoAdicionada)
+            return negociacaoAdicionada
+        }
+        return negociacaoAdicionada;
 
-        this.negociacoes.adiciona(new Negociacao(data,quantidade,valor));
-
-        return new Negociacao(data,quantidade,valor);
         
     }
 
-    limpaForm():void{
+    private limpaForm():void{
         this.inputData.value = ""
         this.inputValor.value = ""
         this.inputQuantidade.focus
     }
 
+    private atualizaView():void{
+        this.negociacoesView.update(this.negociacoes)
+        this.mensagem.update("Negociação adicionada com sucesso")
+    }
+
+    private ehdiaUtil(data:Date):boolean{
+        return (data.getDay() != DiasDaSemana.Domingo && data.getDay() != DiasDaSemana.Sabado)
+    }
 }
